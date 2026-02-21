@@ -11,7 +11,7 @@ pipeline{
                 echo "Building $BUILD_NUMBER of ${DEMO}..."
 
                 sh '''
-                echo "Using a multi-line step chmod +x ./test.sh 
+                echo "Using a multi-line step chmod +x ./test.sh" 
                 ./test.sh"
                 '''
             }
