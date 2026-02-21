@@ -1,0 +1,47 @@
+services:
+  docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    restart: unless-stopped
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - docker_certs:/certs/client
+    healthcheck:
+      test: docker ps
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jenkins
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: gradle.Dockerfile
+    container_name: jenkins-blueocean
+    restart: unless-stopped
+    depends_on:
+      docker:
+        condition: service_healthy
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: 1
+    volumes:
+      - docker_certs:/certs/client:ro
+      - jenkins_home:/var/jenkins_home
+    ports:
+      - 8080:8080
+      - 50000:50000
+    networks:
+      - jenkins
+
+networks:
+  jenkins:
+    driver: bridge
+
+volumes:
+  docker_certs:
+  jenkins_home:
