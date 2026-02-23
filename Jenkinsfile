@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             agent any
             steps {
-                git branch: 'main', url: 'https://github.com/sazo09/Jenkins-calculator.git'
+                git branch: 'main', url: 'https://github.com/sazo09/CI-CD-04.git' 
                 stash name: 'source', includes: '**/*'
             }
         }
