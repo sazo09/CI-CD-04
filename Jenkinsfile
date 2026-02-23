@@ -1,20 +1,46 @@
-pipeline{
-    agent any
+pipeline {
+    agent none
 
-    environment{
-        DEMO = 'DEMO 1.0'
+    options {
+        skipDefaultCheckout(true)
     }
 
-    stages{
-        stage('Build'){
-            steps{
-                echo "Building $BUILD_NUMBER of ${DEMO}..."
+    stages {
+        stage('Checkout') {
+            agent any
+            steps {
+                git branch: 'main', url: 'https://github.com/sazo09/Jenkins-calculator.git'
+                stash name: 'source', includes: '**/*'
+            }
+        }
 
-                sh '''
-                echo "Using a multi-line shell step"
-                chmod +x ./test.sh 
-                ./test.sh
-                '''
+        stage('Compile') {
+            agent {
+                docker {
+                    image 'gradle:6.6.1-jre14-openj9'
+                }
+            }
+            steps {
+                unstash 'source'
+                dir('calculator') {
+                    sh 'chmod +x ./gradlew'
+                    sh './gradlew compileJava'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            agent {
+                docker {
+                    image 'gradle:6.6.1-jre14-openj9'
+                }
+            }
+            steps {
+                unstash 'source'
+                dir('calculator') {
+                    sh 'chmod +x ./gradlew'
+                    sh './gradlew test'
+                }
             }
         }
     }
