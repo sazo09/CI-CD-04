@@ -8,6 +8,7 @@ services:
       DOCKER_TLS_CERTDIR: /certs
     volumes:
       - docker_certs:/certs/client
+      - jenkins_home:/var/jenkins_home
     healthcheck:
       test: docker ps
       interval: 10s
